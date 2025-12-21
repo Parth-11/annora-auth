@@ -6,6 +6,7 @@ import (
 	"log"
 	"net/http"
 
+	"github.com/AdityaTaggar05/connectify-auth/internal/auth"
 	"github.com/AdityaTaggar05/connectify-auth/internal/config"
 	"github.com/AdityaTaggar05/connectify-auth/internal/database"
 	"github.com/joho/godotenv"
@@ -24,17 +25,25 @@ func main() {
 
 	// LOADING DATABASE
 	ctx := context.Background()
-	_ = database.Connect(ctx, cfg.DB_URL)
+	db := database.Connect(ctx, cfg.DB_URL)
 
-	// SETUP ROUTER & ROUTES
+	// SETUP HANDLER, SERVICE & REPO
+	repo := &auth.Repository{DB: db}
+	service := &auth.Service{Repo: repo, JWTSecret: cfg.JWT_SECRET}
+	handler := auth.Handler{Service: service}
+
+	// SETUP ROUTER & ROUTES	
 	r := chi.NewRouter()
 
 	r.Use(middleware.Logger)
   	r.Use(middleware.Recoverer)
 
 	r.Get("/", func(w http.ResponseWriter, r *http.Request) {
-		w.Write([]byte("Hello World!"))
+		w.Write([]byte("the server is running!"))
 	})
+
+	r.Post("/register", handler.HandleRegister)
+	r.Post("/login", handler.HandleLogin)
 
 	fmt.Printf("[DEBUG] Serving on PORT: %s\n", cfg.PORT)
 	http.ListenAndServe(":" + cfg.PORT, r)
