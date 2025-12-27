@@ -84,3 +84,14 @@ func (h *Handler) HandleLogout(w http.ResponseWriter, r *http.Request) {
 	}
     w.WriteHeader(http.StatusNoContent)
 }
+
+func (h *Handler) HandleJWKS(w http.ResponseWriter, r *http.Request) {
+    jwk := h.Service.Config.JWT_SIGNING_KEY.PublicKeyToJWK()
+
+    resp := map[string]any{
+        "keys": []any{jwk},
+    }
+
+    w.Header().Set("Content-Type", "application/json")
+    json.NewEncoder(w).Encode(resp)
+}

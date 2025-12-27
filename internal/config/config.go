@@ -58,7 +58,7 @@ func loadSigningKey() (*models.SigningKey, error) {
 	privateKey := key.(*rsa.PrivateKey)
 
 	return &models.SigningKey{
-		ID: "auth-key-2025-01",
+		ID: "auth-key-2025-12",
 		PrivateKey: privateKey,
 		PublicKey: &privateKey.PublicKey,
 	}, nil

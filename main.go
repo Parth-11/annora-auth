@@ -43,6 +43,10 @@ func main() {
 
 	r.Post("/register", handler.HandleRegister)
 	r.Post("/login", handler.HandleLogin)
+	r.Post("/logout", handler.HandleLogout)
+
+	r.Post("/refresh", handler.HandleRefresh)
+	r.Get("/.well-known/jwks.json", handler.HandleJWKS)
 
 	fmt.Printf("[DEBUG] Serving on PORT: %s\n", cfg.PORT)
 	http.ListenAndServe(":" + cfg.PORT, r)
