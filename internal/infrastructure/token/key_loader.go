@@ -1,0 +1,38 @@
+package tokeninfra
+
+import (
+	"crypto/rsa"
+	"crypto/x509"
+	"encoding/pem"
+	"errors"
+	"os"
+
+	"github.com/AdityaTaggar05/annora-auth/internal/config"
+	"github.com/AdityaTaggar05/annora-auth/internal/model"
+)
+
+func LoadSigningKey(cfg config.JWTConfig) (*model.SigningKey, error) {
+	keyData, err := os.ReadFile(cfg.PrivateKeyPath)
+
+	if err != nil {
+		return nil, err
+	}
+
+	block, _ := pem.Decode([]byte(keyData))
+	if block == nil {
+		return nil, errors.New("invalid private key")
+	}
+
+	key, err := x509.ParsePKCS8PrivateKey(block.Bytes)
+	if err != nil {
+		return nil, err
+	}
+
+	privateKey := key.(*rsa.PrivateKey)
+
+	return &model.SigningKey{
+		ID:         "auth-key-2025-12",
+		PrivateKey: privateKey,
+		PublicKey:  &privateKey.PublicKey,
+	}, nil
+}

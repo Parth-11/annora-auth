@@ -1,4 +1,4 @@
-package database
+package db
 
 import (
 	"context"
@@ -6,20 +6,21 @@ import (
 	"log"
 	"time"
 
+	"github.com/AdityaTaggar05/annora-auth/internal/config"
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
-func Connect(ctx context.Context, url string) *pgxpool.Pool {
-	cfg, err := pgxpool.ParseConfig(url)
+func NewPostgresDB(ctx context.Context, cfg config.PostgresConfig) *pgxpool.Pool {
+	pg_cfg, err := pgxpool.ParseConfig(cfg.URL)
     if err != nil {
         log.Fatal("[ERR] Unable to connect to database: ", err)
     }
 
-    cfg.MaxConns = 20
-    cfg.MinConns = 5
-    cfg.MaxConnLifetime = time.Hour
+    pg_cfg.MaxConns = int32(cfg.MaxOpenConns)
+    pg_cfg.MinConns = 5
+    pg_cfg.MaxConnLifetime = time.Hour
 
-    DB, err := pgxpool.NewWithConfig(ctx, cfg)
+    DB, err := pgxpool.NewWithConfig(ctx, pg_cfg)
 
     if err != nil {
 		log.Fatal("[ERR] Unable to connect to database: ", err)

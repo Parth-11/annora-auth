@@ -1,65 +1,42 @@
 package config
 
-import (
-	"crypto/rsa"
-	"crypto/x509"
-	"encoding/pem"
-	"errors"
-	"os"
-	"strconv"
-	"time"
-
-	"github.com/AdityaTaggar05/annora-auth/internal/models"
-)
+import "time"
 
 type Config struct {
-	PORT string
-	DB_URL     string
-	JWT_SIGNING_KEY *models.SigningKey
-	JWT_EXP    time.Duration
-	REFRESH_EXP time.Duration
+	Server   ServerConfig
+	Postgres PostgresConfig
+	JWT      JWTConfig
+	Redis    RedisConfig
+	Email    EmailConfig
 }
 
-func Load() Config {
-	jwt_exp, _ := strconv.Atoi(os.Getenv("JWT_EXP"))
-	refresh_exp, _ := strconv.Atoi(os.Getenv("REFRESH_EXP"))
-	key, err := loadSigningKey()
+func Load() *Config {
+	return &Config{
+		Server: ServerConfig{
+			Port:         getEnv("PORT", "8080"), 
+			ReadTimeout:  getDuration("SERVER_READ_TIMEOUT", 5*time.Second),
+			WriteTimeout: getDuration("SERVER_WRITE_TIMEOUT", 10*time.Second),
+		},
 
-	if err != nil {
-		panic(errors.New("failed to load JWT private key: " + err.Error()))
+		Postgres: PostgresConfig{
+			URL:          mustGetEnv("DATABASE_URL"),
+			MaxOpenConns: getInt("DB_MAX_OPEN_CONNS", 10),
+		},
+
+		JWT: JWTConfig{
+			PrivateKeyPath: mustGetEnv("JWT_PRIVATE_KEY_PATH"),
+			PublicKeyPath:  mustGetEnv("JWT_PUBLIC_KEY_PATH"),
+			Issuer:         getEnv("JWT_ISSUER", "annora-auth"),
+			AccessTTL:      getDuration("JWT_ACCESS_TTL", 15*time.Minute),
+			RefreshTTL:     getDuration("JWT_REFRESH_TTL", 7*24*time.Hour),
+		},
+
+		Email: EmailConfig{
+			From:     getEnv("EMAIL_FROM", ""),
+			SMTPHost: getEnv("SMTP_HOST", ""),
+			SMTPPort: getInt("SMTP_PORT", 587),
+			Username: getEnv("SMTP_USERNAME", ""),
+			Password: getEnv("SMTP_PASSWORD", ""),
+		},
 	}
-
-	return Config{
-		PORT: os.Getenv("PORT"),
-		DB_URL: os.Getenv("DATABASE_URL"),
-		JWT_SIGNING_KEY: key,
-		JWT_EXP: time.Duration(jwt_exp) * time.Minute,
-		REFRESH_EXP: time.Duration(refresh_exp) * (time.Hour * 24),
-	}
-}
-
-func loadSigningKey() (*models.SigningKey, error) {
-	keyData, err := os.ReadFile(os.Getenv("JWT_PRIVATE_KEY"))
-
-	if err != nil {
-		return nil, err
-	}
-
-	block, _ := pem.Decode([]byte(keyData))
-	if block == nil {
-		return nil, errors.New("invalid private key")
-	}
-
-	key, err := x509.ParsePKCS8PrivateKey(block.Bytes)
-	if err != nil {
-		return nil, err
-	}
-
-	privateKey := key.(*rsa.PrivateKey)
-
-	return &models.SigningKey{
-		ID: "auth-key-2025-12",
-		PrivateKey: privateKey,
-		PublicKey: &privateKey.PublicKey,
-	}, nil
 }
