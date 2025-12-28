@@ -31,10 +31,7 @@ func New(cfg *config.Config) (*App, error) {
 	// 1) Infrastructure Setup
 	ctx := context.Background()
 	db := db.NewPostgresDB(ctx, cfg.Postgres)
-	defer db.Close()
-	
 	rdb := redisinfra.NewClient(cfg.Redis)
-	defer rdb.Close()
 
 	// 2) Repository Setup
 	authRepo := authrepo.NewRepository(db)
