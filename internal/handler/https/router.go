@@ -17,6 +17,7 @@ func NewRouter(authHandler *authhandler.Handler, tokenHandler *tokenhandler.Hand
 	r.Post("/auth/login", authHandler.HandleLogin)
 	r.Post("/auth/logout", authHandler.HandleLogout)
 	r.Get("/auth/verify-email", authHandler.HandleVerifyEmail)
+	r.Post("/auth/resend-verification", authHandler.HandleResendVerification)
 	r.Post("/auth/refresh", tokenHandler.HandleRefresh)
 
 	r.Get("/.well-known/jwks.json", tokenHandler.HandleJWKS)

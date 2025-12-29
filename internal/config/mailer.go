@@ -2,7 +2,7 @@ package config
 
 import "time"
 
-type EmailConfig struct {
+type MailerConfig struct {
 	From     string
 	SMTPHost string
 	SMTPPort int

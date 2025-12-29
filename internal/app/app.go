@@ -16,6 +16,7 @@ import (
 	"github.com/AdityaTaggar05/annora-auth/internal/infrastructure/db"
 	redisinfra "github.com/AdityaTaggar05/annora-auth/internal/infrastructure/redis"
 	tokeninfra "github.com/AdityaTaggar05/annora-auth/internal/infrastructure/token"
+	"github.com/AdityaTaggar05/annora-auth/internal/mailer"
 	authrepo "github.com/AdityaTaggar05/annora-auth/internal/repository/auth"
 	tokenrepo "github.com/AdityaTaggar05/annora-auth/internal/repository/token"
 	authservice "github.com/AdityaTaggar05/annora-auth/internal/service/auth"
@@ -42,8 +43,9 @@ func New(cfg *config.Config) (*App, error) {
 	if err != nil {
 		log.Fatal(err)
 	}
+	mailer := mailer.NewMailer(cfg.Email)
 
-	authService := authservice.NewService(authRepo, tokenRepo, cfg.JWT, cfg.Email.TokenTTL, signingKey)
+	authService := authservice.NewService(authRepo, tokenRepo, mailer, cfg.JWT, cfg.Email.TokenTTL, signingKey)
 	tokenService := tokenservice.NewService(tokenRepo, cfg.JWT, signingKey)
 
 	// 4) Handler Setup

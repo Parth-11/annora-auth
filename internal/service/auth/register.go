@@ -36,7 +36,7 @@ func (s *Service) Register(ctx context.Context, email, password string) error {
 		return err
 	}
 
-	// TODO: Send verification email with the token
+	s.Mailer.SendVerificationEmail(email, token)
 	
 	return nil
 }

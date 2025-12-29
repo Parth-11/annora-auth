@@ -7,7 +7,7 @@ type Config struct {
 	Postgres PostgresConfig
 	JWT      JWTConfig
 	Redis    RedisConfig
-	Email    EmailConfig
+	Email    MailerConfig
 }
 
 func Load() *Config {
@@ -31,7 +31,7 @@ func Load() *Config {
 			RefreshTTL:     getDuration("JWT_REFRESH_TTL", 7*24*time.Hour),
 		},
 
-		Email: EmailConfig{
+		Email: MailerConfig{
 			From:     getEnv("EMAIL_FROM", ""),
 			SMTPHost: getEnv("SMTP_HOST", ""),
 			SMTPPort: getInt("SMTP_PORT", 587),
