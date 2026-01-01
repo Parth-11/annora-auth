@@ -3,6 +3,8 @@ package authhandler
 import (
 	"encoding/json"
 	"net/http"
+
+	authservice "github.com/AdityaTaggar05/annora-auth/internal/service/auth"
 )
 
 type registerRequest struct {
@@ -19,8 +21,18 @@ func (h *Handler) HandleRegister(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if err := h.Service.Register(r.Context(), req.Email, req.Password); err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
-		return
+		switch err {
+			case authservice.ErrInvalidEmailFormat, authservice.ErrInvalidPasswordFormat:
+				http.Error(w, err.Error(), http.StatusBadRequest)
+				return
+			case authservice.ErrUserAlreadyExists:
+				http.Error(w, err.Error(), http.StatusConflict)
+				return
+			default:
+				http.Error(w, err.Error(), http.StatusBadRequest)
+				return
+		}
 	}
+	
 	w.WriteHeader(http.StatusCreated)
 }

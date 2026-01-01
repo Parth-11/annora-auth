@@ -9,6 +9,14 @@ import (
 )
 
 func (s *Service) Register(ctx context.Context, email, password string) error {
+	if !isValidEmail(email) {
+		return ErrInvalidEmailFormat
+	}
+
+	if !isValidPassword(password) {
+		return ErrInvalidPasswordFormat
+	}
+
 	hash, err := bcrypt.GenerateFromPassword([]byte(password), 10)
 	if err != nil {
 		return err
@@ -16,7 +24,7 @@ func (s *Service) Register(ctx context.Context, email, password string) error {
 
 	err = s.AuthRepo.CreateUser(ctx, email, string(hash))
 	if err != nil {
-		return err
+		return ErrUserAlreadyExists
 	}
 
 	user, err := s.AuthRepo.GetUserByEmail(ctx, email)
