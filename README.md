@@ -1,7 +1,5 @@
 # Annora Auth Service
 
----
-
 A **production-grade authentication microservice** built in **Go**, designed with a strong focus on **security**, **clean architecture**, and **real-world auth workflows**.
 
 This service provides:
@@ -34,9 +32,6 @@ The service is designed to be **independently deployable**, **frontend-agnostic*
 - 🚫 **Login blocked until email verification**  
   Simplifies downstream authorisation and trust model.
 
-- 🧹 **Automatic token cleanup**  
-  Redis TTL + background cleanup jobs for persistent tokens.
-
 - 🧱 **Clean layered architecture**  
   Business logic is isolated from transport and infrastructure concerns.
 
@@ -44,9 +39,9 @@ The service is designed to be **independently deployable**, **frontend-agnostic*
 
 ## 🧱 Architecture Overview
 
-Handler → Service → Repository
-↓
-Mailer / Redis
+Handler → Service → Repository</br>
+↓</br>
+Mailer
 
 - **Handlers**: HTTP transport & response mapping
 - **Services**: Business rules, validation, workflows
@@ -83,12 +78,11 @@ Creates a new user and sends a verification email.
 ```
 
 **Response**
-| Status                      | Meaning                                             |
+| Status | Meaning |
 | --------------------------- | --------------------------------------------------- |
-| `201 Created`               | User created successfully. Verification email sent. |
-| `400 Bad Request`           | Invalid email or password format.                   |
-| `409 Conflict`              | Email already registered.                           |
-
+| `201 Created` | User created successfully. Verification email sent. |
+| `400 Bad Request` | Invalid email or password format. |
+| `409 Conflict` | Email already registered. |
 
 **Notes**
 
@@ -104,11 +98,10 @@ Creates a new user and sends a verification email.
 Validates email verification token
 
 **Response**
-| Status                      | Meaning                    |
+| Status | Meaning |
 | --------------------------- | -------------------------- |
-| `200 OK`                    | Email Verified Succesfully |
-| `400 Bad Request`           | Expired or Used Token      |
-
+| `200 OK` | Email Verified Succesfully |
+| `400 Bad Request` | Expired or Used Token |
 
 **Notes**
 
@@ -132,13 +125,12 @@ Resends verification email (rate-limited).
 ```
 
 **Response**
-| Status                      | Meaning                                 |
+| Status | Meaning |
 | --------------------------- | --------------------------------------- |
-| `204 No Content`            | Verification email resent successfully. |
-| `400 Bad Request`           | Invalid email format.                   |
-| `404 Not Found`             | No account exists for this email.       |
-| `429 Too Many Requests`     | Resend limit exceeded.                  |
-
+| `204 No Content` | Verification email resent successfully. |
+| `400 Bad Request` | Invalid email format. |
+| `404 Not Found` | No account exists for this email. |
+| `429 Too Many Requests` | Resend limit exceeded. |
 
 **Notes**
 
@@ -172,12 +164,12 @@ Authenticates a verified user.
 ```
 
 **Response**
-| Status                      | Meaning                            |
+| Status | Meaning |
 | --------------------------- | ---------------------------------- |
-| `200 OK`                    | Login successful. Tokens returned. |
-| `401 Unauthorised`          | Invalid email or password.         |
-| `403 Forbidden`             | Email not verified.                |
-| `400 Bad Request`           | Invalid request payload.           |
+| `200 OK` | Login successful. Tokens returned. |
+| `401 Unauthorised` | Invalid email or password. |
+| `403 Forbidden` | Email not verified. |
+| `400 Bad Request` | Invalid request payload. |
 
 **Notes**
 
@@ -211,12 +203,11 @@ Rotates the refresh token and issues a new access token.
 ```
 
 **Response**
-| Status                      | Meaning                             |
+| Status | Meaning |
 | --------------------------- | ----------------------------------- |
-| `200 OK`                    | New access & refresh tokens issued. |
-| `401 Unauthorised`          | Refresh token invalid or revoked.   |
-| `400 Bad Request`           | Missing or malformed token.         |
-
+| `200 OK` | New access & refresh tokens issued. |
+| `401 Unauthorised` | Refresh token invalid or revoked. |
+| `400 Bad Request` | Missing or malformed token. |
 
 **Notes**
 
@@ -240,11 +231,10 @@ Revokes a refresh token.
 ```
 
 **Response**
-| Status                      | Meaning                         |
+| Status | Meaning |
 | --------------------------- | ------------------------------- |
-| `204 No Content`            | Logout successful (idempotent). |
-| `400 Bad Request`           | Invalid request payload.        |
-
+| `204 No Content` | Logout successful (idempotent). |
+| `400 Bad Request` | Invalid request payload. |
 
 **Notes**
 
@@ -260,6 +250,7 @@ Revokes a refresh token.
 Returns public keys for JWT verification.
 
 **Success**
+
 ```json
 {
   "keys": [
@@ -276,9 +267,9 @@ Returns public keys for JWT verification.
 ```
 
 **Response**
-| Status                      | Meaning                            |
+| Status | Meaning |
 | --------------------------- | ---------------------------------- |
-| `200 OK`                    | Public keys returned successfully. |
+| `200 OK` | Public keys returned successfully. |
 
 **Notes**
 
