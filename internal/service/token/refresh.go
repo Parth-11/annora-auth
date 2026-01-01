@@ -2,18 +2,24 @@ package tokenservice
 
 import (
 	"context"
-	"fmt"
 	"time"
 
 	"github.com/AdityaTaggar05/annora-auth/internal/model"
 )
 
 func (s *Service) Refresh(ctx context.Context, oldToken string) (model.TokenPair, error) {
+	if len(oldToken) != 32 {
+		return model.TokenPair{}, ErrInvalidRefreshTokenFormat
+	}
+
 	tokens := model.TokenPair{}
 
 	rt, err := s.TokenRepo.GetRefreshToken(ctx, oldToken)
-	if err != nil || rt.Revoked || rt.ExpiresAt.Before(time.Now()) {
-		return tokens, fmt.Errorf("Unauthorized Request")
+	if err != nil {
+		return tokens, err
+	}
+	if rt.Revoked || rt.ExpiresAt.Before(time.Now()) {
+		return tokens, ErrInvalidRefreshToken
 	}
 
 	err = s.TokenRepo.RevokeRefreshToken(ctx, oldToken)

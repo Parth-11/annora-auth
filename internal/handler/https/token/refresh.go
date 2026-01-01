@@ -3,6 +3,8 @@ package tokenhandler
 import (
 	"encoding/json"
 	"net/http"
+
+	tokenservice "github.com/AdityaTaggar05/annora-auth/internal/service/token"
 )
 
 type refreshRequest struct {
@@ -19,9 +21,17 @@ func (h *Handler) HandleRefresh(w http.ResponseWriter, r *http.Request) {
 
 	tokens, err := h.Service.Refresh(r.Context(), req.RefreshToken)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusUnauthorized)
+		switch err {
+			case tokenservice.ErrInvalidRefreshTokenFormat:
+				http.Error(w, err.Error(), http.StatusBadRequest)
+			case tokenservice.ErrInvalidRefreshToken:
+				http.Error(w, err.Error(), http.StatusUnauthorized)
+			default:
+				http.Error(w, "internal server error", http.StatusInternalServerError)
+		}
 		return
 	}
+	
 	w.WriteHeader(http.StatusOK)
 	json.NewEncoder(w).Encode(tokens)
 }
