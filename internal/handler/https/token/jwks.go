@@ -8,4 +8,5 @@ import (
 func (h *Handler) HandleJWKS(w http.ResponseWriter, r *http.Request) {
     w.Header().Set("Content-Type", "application/json")
     json.NewEncoder(w).Encode(h.Service.JWKS())
+	w.WriteHeader(http.StatusOK)
 }
