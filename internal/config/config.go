@@ -44,6 +44,8 @@ func Load() *Config {
 			Username: getEnv("SMTP_USERNAME", ""),
 			Password: getEnv("SMTP_PASSWORD", ""),
 			TokenTTL: getDuration("EMAIL_TOKEN_TTL", 4*time.Hour),
+			ResendLimit: getInt("EMAIL_RESEND_LIMIT", 2),
+			ResendLimitTTL: getDuration("EMAIL_RESEND_LIMIT_TTL", 1*time.Hour),
 		},
 	}
 }

@@ -13,6 +13,8 @@ type Mailer struct {
 	Auth smtp.Auth
 	From string
 	TokenTTL time.Duration
+	ResendLimit int
+	ResendLimitTTL time.Duration
 }
 
 func NewMailer(cfg config.MailerConfig) *Mailer {
@@ -28,6 +30,8 @@ func NewMailer(cfg config.MailerConfig) *Mailer {
 		Auth: auth,
 		From: cfg.From,
 		TokenTTL: cfg.TokenTTL,
+		ResendLimit: cfg.ResendLimit,
+		ResendLimitTTL: cfg.ResendLimitTTL,
 	}
 }
 

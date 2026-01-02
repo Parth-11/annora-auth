@@ -44,9 +44,7 @@ func (s *Service) Register(ctx context.Context, email, password string) error {
 		return err
 	}
 
-	s.Mailer.SendVerificationEmail(email, token)
-	
-	return nil
+	return s.Mailer.SendVerificationEmail(email, token)
 }
 
 func generateEmailVerificationToken() (string, error) {

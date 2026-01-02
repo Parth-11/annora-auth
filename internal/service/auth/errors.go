@@ -10,4 +10,5 @@ var (
 	ErrUserNotFound = errors.New("user not found")
 	ErrEmailNotVerified = errors.New("email not verified")
 	ErrIncorrectPassword = errors.New("incorrect password")
+	ErrTooManyRequests = errors.New("too many requests, please try again later")
 )

@@ -9,4 +9,6 @@ type MailerConfig struct {
 	Username string
 	Password string
 	TokenTTL time.Duration
+	ResendLimit int
+	ResendLimitTTL time.Duration
 }
