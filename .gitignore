@@ -1,5 +1,5 @@
 tmp
 .vscode
 go.work
-jwt_private.pem
+keys/jwt_private.pem
 .env
