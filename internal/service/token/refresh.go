@@ -8,7 +8,7 @@ import (
 )
 
 func (s *Service) Refresh(ctx context.Context, oldToken string) (model.TokenPair, error) {
-	if len(oldToken) != 32 {
+	if !IsValidRefreshToken(oldToken) {
 		return model.TokenPair{}, ErrInvalidRefreshTokenFormat
 	}
 

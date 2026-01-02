@@ -7,7 +7,7 @@ import (
 )
 
 func (s *Service) Logout(ctx context.Context, oldToken string) error {
-	if len(oldToken) != 32 {
+	if !tokenservice.IsValidRefreshToken(oldToken) {
 		return tokenservice.ErrInvalidRefreshTokenFormat
 	}
 
