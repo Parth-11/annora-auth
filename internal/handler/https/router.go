@@ -16,8 +16,8 @@ func NewRouter(authHandler *authhandler.Handler, tokenHandler *tokenhandler.Hand
 	r.Use(middleware.Recoverer)
 
 	r.Get("/", func(w http.ResponseWriter, r *http.Request) {
-		w.WriteHeader(http.StatusOK)
 		w.Write([]byte("Hello from auth-service"))
+		w.WriteHeader(http.StatusOK)
 	})
 	r.Post("/auth/register", authHandler.HandleRegister)
 	r.Post("/auth/login", authHandler.HandleLogin)
