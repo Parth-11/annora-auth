@@ -1,17 +1,39 @@
-version: "3.9"
-
 services:
   auth:
-    image: annora-auth
-    container_name: annora-auth
+    build: .
     ports:
-      - "127.0.0.1:8080:8080"
-    env_file:
-      - .env
+      - "8080:8080"
+    environment:
+      DATABASE_URL: ${DATABASE_URL}
+      JWT_PRIVATE_KEY_PATH: /keys/jwt_private.pem
+      JWT_PUBLIC_KEY_PATH: /keys/jwt_public.pem
+      JWT_ACCESS_TTL: ${JWT_ACCESS_TTL}
+      JWT_REFRESH_TTL: ${JWT_REFRESH_TTL}
+      PORT: 8080
+      EMAIL_FROM: ${SMTP_USERNAME}
+      SMTP_HOST: smtp.gmail.com
+      SMTP_PORT: 587
+      SMTP_USERNAME: ${SMTP_USERNAME}
+      SMTP_PASSWORD: ${SMTP_PASSWORD}
+      REDIS_URL: ${REDIS_URL}
+    volumes:
+      - ./keys:/keys:ro
     depends_on:
-      - postgres
-      - redis
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
     restart: unless-stopped
+
+  migrate:
+    image: migrate/migrate:v4.19.0
+    volumes:
+      - ./migrations:/migrations
+    entrypoint: ["migrate"]
+    command: ["-source=file:///migrations", "-database=${DATABASE_URL}", "up"]
+    depends_on:
+      postgres:
+        condition: service_healthy
 
   postgres:
     image: postgres:16
@@ -22,6 +44,11 @@ services:
       POSTGRES_PASSWORD: auth_pass
     volumes:
       - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD", "/usr/bin/pg_isready", "-U", "auth_user", "-d", "auth_db"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
     restart: unless-stopped
 
   redis:
@@ -29,6 +56,11 @@ services:
     container_name: annora-redis
     volumes:
       - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
     restart: unless-stopped
 
 volumes:

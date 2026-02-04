@@ -2,5 +2,5 @@ undodir
 tmp
 .vscode
 go.work
-keys/jwt_private.pem
+keys/*.pem
 .env

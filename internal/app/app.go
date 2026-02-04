@@ -34,6 +34,15 @@ func New(cfg *config.Config) (*App, error) {
 	db := db.NewPostgresDB(ctx, cfg.Postgres)
 	rdb := redisinfra.NewClient(cfg.Redis)
 
+	for range 5 {
+		err := rdb.Ping(ctx).Err()
+		if err == nil {
+			break
+		}
+		log.Println("Waiting for Redis...")
+		time.Sleep(2 * time.Second)
+	}
+
 	// 2) Repository Setup
 	authRepo := authrepo.NewRepository(db)
 	tokenRepo := tokenrepo.NewRepository(db, rdb)
@@ -56,12 +65,12 @@ func New(cfg *config.Config) (*App, error) {
 	router := https.NewRouter(authHandler, tokenHandler)
 
 	// 6) Server Setup
-	return &App {
+	return &App{
 		Config: cfg,
 		Server: &http.Server{
 			Addr:         ":" + cfg.Server.Port,
-			Handler: router,
-			ReadTimeout: cfg.Server.ReadTimeout,
+			Handler:      router,
+			ReadTimeout:  cfg.Server.ReadTimeout,
 			WriteTimeout: cfg.Server.WriteTimeout,
 		},
 	}, nil

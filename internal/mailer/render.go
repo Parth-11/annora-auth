@@ -3,10 +3,18 @@ package mailer
 import (
 	"bytes"
 	"html/template"
+	"os"
+	"path/filepath"
 )
 
 func renderTemplate(path string, data any) (string, error) {
-	tmpl, err := template.ParseFiles("internal/mailer/templates/" + path)
+	pwd, err := os.Getwd()
+
+	if err != nil {
+		return "", err
+	}
+
+	tmpl, err := template.ParseFiles(filepath.Join(pwd, "internal", "mailer", "templates", path))
 	if err != nil {
 		return "", err
 	}
