@@ -1,31 +1,16 @@
-name: Deploy Annora Auth
+name: Deploy Auth Service
 
 on:
   push:
-    branches: [ main ]
+    branches:
+      - master
 
 jobs:
   deploy:
-    runs-on: ubuntu-latest
-
+    runs-on: self-hosted
     steps:
-      - uses: actions/checkout@v4
-
-      - name: Login to GHCR
-        run: echo "${{ secrets.GHCR_TOKEN }}" | docker login ghcr.io -u ${{ secrets.GHCR_USERNAME }} --password-stdin
-
-      - name: Build & Push Image
+      - name: Deploy on server
         run: |
-          docker build -t ghcr.io/${{ secrets.GHCR_USERNAME }}/annora-auth:latest .
-          docker push ghcr.io/${{ secrets.GHCR_USERNAME }}/annora-auth:latest
-
-      - name: Deploy via Tailscale SSH
-        uses: appleboy/ssh-action@v1
-        with:
-          host: ${{ secrets.TAILSCALE_SSH_HOST }}
-          username: ${{ secrets.TAILSCALE_SSH_USER }}
-          key: ${{ secrets.TAILSCALE_SSH_KEY }}
-          script: |
-            cd /var/www/annora-auth
-            docker pull ghcr.io/${{ secrets.GHCR_USERNAME }}/annora-auth:latest
-            docker compose up -d
+          cd /srv/auth-service/annora-auth
+          git pull
+          docker compose up -d --build
